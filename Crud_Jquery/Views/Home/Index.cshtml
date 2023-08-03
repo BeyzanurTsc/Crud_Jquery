@@ -1,0 +1,60 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+<style>
+    table{
+        margin-top:10px;
+    }
+</style>
+@* Veri Ekleme Butonu *@ <button class="btn btn-outline-primary" id="addBtn">Ekle</button>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Product Id</th>
+            <th>Name</th>
+            <th>Category Id</th>
+            <th>Brand Id</th>
+            <th>Description</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody id="table-body">
+        @*Buraya jquery ile veriler getirilecek*@
+    </tbody>
+</table>
+
+@* Veri Ekleme Modal ı *@
+<div class="modal fade modal" id="AddModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="text-info modal-title">Ürün Ekle</h1>
+            </div>
+            <div class="modal-body">
+                <form method="post">
+                    <div class="form-group">
+
+                        <label>Ürün Adı</label>
+                        <input type="text" class="form-control" id="P_Name" />
+                        <label>Kategori Id</label>
+                        <input type="text" class="form-control" id="C_Id" />
+                        <label>Brand Id</label>
+                        <input type="text" class="form-control" id="B_Id" />
+                        <label>Description</label>
+                        <input type="text" class="form-control" id="description" />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline-primary" id="saveBtn" onclick="AddData();">Kaydet</button>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+<script src="~/js/product.js"></script>
+
