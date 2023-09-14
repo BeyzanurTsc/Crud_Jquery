@@ -22,6 +22,10 @@ namespace Crud_Jquery.Controllers
         {
             return View();
         }
+        public IActionResult Products()
+        {
+            return View();
+        }
         public JsonResult ProductList()
         {
             var data =db.Products.ToList();
@@ -41,8 +45,27 @@ namespace Crud_Jquery.Controllers
             db.SaveChanges();
             return new JsonResult("Veri kaydedildi!!!!");
         }
+        public JsonResult DeleteProduct(int id)
+        {
+            var deletedData = db.Products.Where(x => x.ProductId == id).SingleOrDefault();
+            db.Products.Remove(deletedData);
+            db.SaveChanges();
+            return new JsonResult("Veri silindi");
+        }
 
+        public JsonResult VeriGetir(int id)
+        {
+            var data = db.Products.Where(x => x.ProductId == id).SingleOrDefault();
+            return new JsonResult(data);
+        }
+        [HttpPost]
+        public JsonResult UpdateProduct([FromBody] Product product)
+        {
 
+            db.Products.Update(product);
+            db.SaveChanges();
+            return new JsonResult("Veri güncellendi");
+        }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

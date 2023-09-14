@@ -2,59 +2,169 @@
     ViewData["Title"] = "Home Page";
 }
 <style>
-    table{
-        margin-top:10px;
+    pre {
+        background-color: aliceblue;
     }
 </style>
-@* Veri Ekleme Butonu *@ <button class="btn btn-outline-primary" id="addBtn">Ekle</button>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Product Id</th>
-            <th>Name</th>
-            <th>Category Id</th>
-            <th>Brand Id</th>
-            <th>Description</th>
-            <th>İşlemler</th>
-        </tr>
-    </thead>
-    <tbody id="table-body">
-        @*Buraya jquery ile veriler getirilecek*@
-    </tbody>
-</table>
 
-@* Veri Ekleme Modal ı *@
-<div class="modal fade modal" id="AddModal">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="text-info modal-title">Ürün Ekle</h1>
-            </div>
-            <div class="modal-body">
-                <form method="post">
-                    <div class="form-group">
+<div id="create">
+    <h4>Create (Oluşturmak) İşlemi:  </h4>
+<pre>
 
-                        <label>Ürün Adı</label>
-                        <input type="text" class="form-control" id="P_Name" />
-                        <label>Kategori Id</label>
-                        <input type="text" class="form-control" id="C_Id" />
-                        <label>Brand Id</label>
-                        <input type="text" class="form-control" id="B_Id" />
-                        <label>Description</label>
-                        <input type="text" class="form-control" id="description" />
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline-primary" id="saveBtn" onclick="AddData();">Kaydet</button>
-            </div>
+[HttpPost]
+public JsonResult AddProduct([FromBody]Product product)
+{
+    // Yeni bir Product nesnesi oluşturuluyor ve bu nesne, AJAX isteğiyle gelen JSON verileri ile dolduruluyor.
+    var data = new Product()
+    {
+        ProductName = product.ProductName,
+        CategoryId = product.CategoryId,
+        BrandId = product.BrandId,
+        Description = product.Description,
+    };
 
-        </div>
+    // Veritabanına yeni ürün ekleniyor.
+    db.Products.Add(data);
+    db.SaveChanges(); // Değişiklikler veritabanına kaydediliyor.
 
-    </div>
-
+    // Sonuç JSON olarak döndürülüyor ve istemciye eklemenin başarılı olduğu bilgisi gönderiliyor.
+    return new JsonResult("Veri kaydedildi!!!!");
+}
+</pre>
+    <p>
+        Bu kod parçası, yeni bir ürünün oluşturulmasını ve veritabanına eklenmesini temsil eder. AJAX isteğiyle gelen veriler bir Product nesnesine atanır ve bu nesne veritabanına eklenir.
+    </p>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
-<script src="~/js/product.js"></script>
+<div id="read">
+    <h4>Read (Okumak) İşlemi: </h4>
+    <pre>
+        C#
 
+        public JsonResult ProductList()
+        {
+            // Veritabanından tüm ürünler alınıyor ve JSON olarak döndürülüyor.
+            var data = db.Products.ToList();
+            return new JsonResult(data);
+        }
+    </pre>
+    <pre>
+        Javascript
+
+        function ShowData() {
+    // AJAX isteğiyle, veritabanından tüm ürünler çekilir ve bu veriler HTML tabloya doldurulur.
+    $.ajax({
+        url: '/Home/ProductList',
+        type: 'Get',
+        dataType: 'Json',
+        contentType: 'application/json;charset=utf-8;',
+        success: function (result, status, xhr) {
+            var table_data = '';
+
+            // Çekilen veriler döngüyle işlenir ve HTML tabloya eklenir.
+            $.each(result, function (index, item) {
+                // ...
+            });
+
+            // Tablo verileri HTML içeriğine yerleştirilir.
+            $('#table-body').html(table_data);
+        },
+        error: function () {
+            // İşlem başarısız ise hata mesajı gösterilir.
+            alert('Veri gösterilemiyor :( ')
+        }
+    });
+}
+
+    </pre>
+    <p>Bu kodlar, tüm ürünlerin veritabanından çekilmesini ve HTML tablosuna yerleştirilmesini temsil eder. Veriler AJAX ile sunucudan alınır ve HTML içeriğine yerleştirilir.</p>
+</div>
+
+<div id="update">
+    <h4>
+        Update (Güncellemek) İşlemi:
+    </h4>
+    <pre>
+        C#
+        [HttpPost]
+        public JsonResult UpdateProduct([FromBody] Product product)
+        {
+            // Güncellenecek ürün verisi alınır ve veritabanında güncellenir.
+            db.Products.Update(product);
+            db.SaveChanges();
+            // Sonuç JSON olarak döndürülür.
+            return new JsonResult("Veri güncellendi");
+        }
+    </pre>
+    <pre>
+        Javascript
+
+        function UpdateData() {
+    // Kullanıcının girdiği güncellenmiş ürün bilgileri alınır.
+    var obj = {
+        Id: $('#upd_Id').val(),
+        name: $('#upd_name').val(),
+        categoryId: $('#upd_category').val(),
+        brandId: $('#upd_brand').val(),
+        description: $('#upd_description').val()
+    }
+    // AJAX isteği ile güncellenmiş ürün verisi sunucuya gönderilir.
+    $.ajax({
+        url: '/Home/UpdateProduct',
+        type: 'Post',
+        data: JSON.stringify(obj),
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'JSON',
+        success: function () {
+            // İşlem başarılı ise veriler yeniden gösterilir ve güncelleme modal penceresi kapatılır.
+            ShowData();
+            $('#UpdateMdl').modal('hide');
+        },
+        error: function () {
+            // İşlem başarısız ise hata mesajı gösterilir.
+            alert('Ekleme işlemi başarısız');
+        }
+    })
+}
+
+    </pre>
+</div>
+
+<div id="delete">
+    <h4>Delete (Silme) İşlemi:</h4>
+    <pre>CSharp
+
+        public JsonResult DeleteProduct(int id)
+        {
+            // Belirtilen ürün verisi veritabanından silinir.
+            var deletedData = db.Products.Where(x => x.ProductId == id).SingleOrDefault();
+            db.Products.Remove(deletedData);
+            db.SaveChanges();
+            // Sonuç JSON olarak döndürülür.
+            return new JsonResult("Veri silindi");
+        }
+
+    </pre>
+    <pre>
+        Javascript
+
+        function Delete(id) {
+    // Kullanıcıdan silme işlemini onaylaması istenir.
+    if (confirm("Bu veriyi silmek istediğinize emin misiniz?")) {
+        // Silme işlemi AJAX ile sunucuya gönderilir.
+        $.ajax({
+            url: '/Home/DeleteProduct?id=' + id,
+            success: function () {
+                // İşlem başarılı ise veriler yeniden gösterilir.
+                ShowData();
+            },
+            error: function () {
+                // İşlem başarısız ise hata mesajı gösterilir.
+                alert('İşlem başarısız');
+            }
+        })
+    }
+}
+
+    </pre>
+</div>
